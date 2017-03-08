@@ -785,6 +785,18 @@ static int kszphy_probe(struct phy_device *phydev)
 	return 0;
 }
 
+/* BECK: add special config function for KSZ8061 PHY */
+static int ksz8061_config_aneg(struct phy_device *phydev)
+{
+	/* KSZ8061 Errata: Fix link-up failure */
+	phy_write(phydev, 0xD, 0x0001);
+	phy_write(phydev, 0xE, 0x0002);
+	phy_write(phydev, 0xD, 0x4001);
+	phy_write(phydev, 0xE, 0xB61A);
+
+	return genphy_config_aneg(phydev);
+}
+
 static struct phy_driver ksphy_driver[] = {
 {
 	.phy_id		= PHY_ID_KS8737,
@@ -941,7 +953,8 @@ static struct phy_driver ksphy_driver[] = {
 	.features	= (PHY_BASIC_FEATURES | SUPPORTED_Pause),
 	.flags		= PHY_HAS_MAGICANEG | PHY_HAS_INTERRUPT,
 	.config_init	= kszphy_config_init,
-	.config_aneg	= genphy_config_aneg,
+	/* BECK: add special config for KSZ8061 */
+	.config_aneg	= ksz8061_config_aneg,
 	.read_status	= genphy_read_status,
 	.ack_interrupt	= kszphy_ack_interrupt,
 	.config_intr	= kszphy_config_intr,
