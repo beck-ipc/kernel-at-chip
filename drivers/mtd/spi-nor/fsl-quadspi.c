@@ -61,6 +61,12 @@
 #define QUADSPI_MCR_SWRSTSD_SHIFT	0
 #define QUADSPI_MCR_SWRSTSD_MASK	(1 << QUADSPI_MCR_SWRSTSD_SHIFT)
 
+/* BECK: added from Freescale kernel 4.1.15 */
+#define QUADSPI_FLSHCR			0x0c
+#define QUADSPI_FLSHCR_TDH_SHIFT	16
+#define QUADSPI_FLSHCR_TDH_MASK		(3 << QUADSPI_FLSHCR_TDH_SHIFT)
+#define QUADSPI_FLSHCR_TDH_DDR_EN	(1 << QUADSPI_FLSHCR_TDH_SHIFT)
+
 #define QUADSPI_IPCR			0x08
 #define QUADSPI_IPCR_SEQID_SHIFT	24
 #define QUADSPI_IPCR_SEQID_MASK		(0xF << QUADSPI_IPCR_SEQID_SHIFT)
@@ -285,6 +291,8 @@ struct fsl_qspi {
 	unsigned int chip_base_addr; /* We may support two chips. */
 	bool has_second_chip;
 	bool big_endian;
+	/* BECK: added from Freescale kernel 4.1.15 */
+	u32 ddr_smp;
 	struct mutex lock;
 	struct pm_qos_request pm_qos_req;
 };
@@ -704,6 +712,33 @@ static void fsl_qspi_init_abh_read(struct fsl_qspi *q)
 	seqid = fsl_qspi_get_seqid(q, q->nor[0].read_opcode);
 	qspi_writel(q, seqid << QUADSPI_BFGENCR_SEQID_SHIFT,
 		q->iobase + QUADSPI_BFGENCR);
+
+	/* BECK: added from Freescale kernel 4.1.15 */
+	if ((q->devtype_data->devtype == FSL_QUADSPI_IMX6UL) ||
+		(q->devtype_data->devtype == FSL_QUADSPI_IMX7D)) {
+		u32 reg, reg2;
+
+		reg = qspi_readl(q, q->iobase + QUADSPI_MCR);
+
+		/* Firstly, disable the module */
+		qspi_writel(q, reg | QUADSPI_MCR_MDIS_MASK, q->iobase + QUADSPI_MCR);
+
+		/* Set the Sampling Register for DDR */
+		reg2 = qspi_readl(q, q->iobase + QUADSPI_SMPR);
+		reg2 &= ~QUADSPI_SMPR_DDRSMP_MASK;
+		reg2 |= ((q->ddr_smp << QUADSPI_SMPR_DDRSMP_SHIFT) &
+				QUADSPI_SMPR_DDRSMP_MASK);
+		qspi_writel(q, reg2, q->iobase + QUADSPI_SMPR);
+
+		/* Enable the module again (enable the DDR too) */
+		reg |= QUADSPI_MCR_DDR_EN_MASK;
+		qspi_writel(q, reg, q->iobase + QUADSPI_MCR);
+
+		reg = qspi_readl(q, q->iobase + QUADSPI_FLSHCR);
+		reg &= ~QUADSPI_FLSHCR_TDH_MASK;
+		reg |= QUADSPI_FLSHCR_TDH_DDR_EN;
+		qspi_writel(q, reg, q->iobase + QUADSPI_FLSHCR);
+	}
 }
 
 /* This function was used to prepare and enable QSPI clock */
@@ -756,6 +791,15 @@ static int fsl_qspi_nor_setup(struct fsl_qspi *q)
 	ret = fsl_qspi_clk_prep_enable(q);
 	if (ret)
 		return ret;
+
+	/* BECK: added from Freescale kernel 4.1.15 */
+	if ((q->devtype_data->devtype == FSL_QUADSPI_IMX6UL) ||
+		(q->devtype_data->devtype == FSL_QUADSPI_IMX7D)) {
+		/* clear the DDR_EN bit for 6UL and 7D */
+		reg = qspi_readl(q, base + QUADSPI_MCR);
+		qspi_writel(q, ~(QUADSPI_MCR_DDR_EN_MASK) & reg, base + QUADSPI_MCR);
+		udelay(1);
+	}
 
 	/* Reset the module */
 	qspi_writel(q, QUADSPI_MCR_SWRSTSD_MASK | QUADSPI_MCR_SWRSTHD_MASK,
@@ -1020,6 +1064,13 @@ static int fsl_qspi_probe(struct platform_device *pdev)
 	q->clk = devm_clk_get(dev, "qspi");
 	if (IS_ERR(q->clk))
 		return PTR_ERR(q->clk);
+
+	/* BECK: added from Freescale kernel 4.1.15 */
+	/* find ddrsmp value */
+	ret = of_property_read_u32(dev->of_node, "ddrsmp",
+				&q->ddr_smp);
+	if (ret)
+		q->ddr_smp = 0;
 
 	ret = fsl_qspi_clk_prep_enable(q);
 	if (ret) {
