@@ -236,6 +236,11 @@ config FIXED_PHY
 
 	  Currently tested with mpc866ads and mpc8349e-mitx.
 
+config TLK106L_PHY
+	tristate "TI TLK106L PHY"
+	---help---
+	  Supports the TI TLK106L PHY.
+
 config ICPLUS_PHY
 	tristate "ICPlus PHYs"
 	---help---
