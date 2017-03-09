@@ -627,6 +627,7 @@ dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ul-tx6ul-0010.dtb \
 	imx6ul-tx6ul-0011.dtb \
 	imx6ul-tx6ul-mainboard.dtb \
+	imx6ul-sc145-db150.dtb
 	imx6ull-14x14-evk.dtb \
 	imx6ull-colibri-eval-v3.dtb \
 	imx6ull-colibri-wifi-eval-v3.dtb \
@@ -897,6 +898,7 @@ dtb-$(CONFIG_ARCH_OXNAS) += \
 	ox820-cloudengines-pogoplug-series-3.dtb
 dtb-$(CONFIG_ARCH_QCOM) += \
 	qcom-apq8060-dragonboard.dtb \
+	qcom-apq8064-arrow-sd-600eval.dtb \
 	qcom-apq8064-cm-qs600.dtb \
 	qcom-apq8064-ifc6410.dtb \
 	qcom-apq8064-sony-xperia-yuga.dtb \
@@ -988,6 +990,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3229-xms6.dtb \
 	rk3288-evb-act8846.dtb \
 	rk3288-evb-rk808.dtb \
+	rk3288-fennec.dtb \
 	rk3288-firefly-beta.dtb \
 	rk3288-firefly.dtb \
 	rk3288-firefly-reload.dtb \
@@ -1023,6 +1026,23 @@ dtb-$(CONFIG_ARCH_S5PV210) += \
 	s5pv210-smdkc110.dtb \
 	s5pv210-smdkv210.dtb \
 	s5pv210-torbreck.dtb
+dtb-$(CONFIG_ARCH_SHMOBILE_MULTI) += \
+	emev2-kzm9d.dtb \
+	r7s72100-genmai.dtb \
+	r7s72100-rskrza1.dtb \
+	r8a73a4-ape6evm.dtb \
+	r8a7740-armadillo800eva.dtb \
+	r8a7778-bockw.dtb \
+	r8a7779-marzen.dtb \
+	r8a7790-lager.dtb \
+	r8a7791-koelsch.dtb \
+	r8a7791-porter.dtb \
+	r8a7792-blanche.dtb \
+	r8a7792-wheat.dtb \
+	r8a7793-gose.dtb \
+	r8a7794-alt.dtb \
+	r8a7794-silk.dtb \
+	sh73a0-kzm9g.dtb
 dtb-$(CONFIG_ARCH_SOCFPGA) += \
 	socfpga_arria5_socdk.dtb \
 	socfpga_arria10_socdk_nand.dtb \
@@ -1051,6 +1071,11 @@ dtb-$(CONFIG_ARCH_STI) += \
 	stih407-b2120.dtb \
 	stih410-b2120.dtb \
 	stih410-b2260.dtb \
+	stih415-b2000.dtb \
+	stih415-b2020.dtb \
+	stih416-b2000.dtb \
+	stih416-b2020.dtb \
+	stih416-b2020e.dtb \
 	stih418-b2199.dtb
 dtb-$(CONFIG_ARCH_STM32) += \
 	stm32f429-disco.dtb \
