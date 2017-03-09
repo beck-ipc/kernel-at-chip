@@ -1,0 +1,48 @@
+/*
+ * Copyright (C) 2015 Freescale Semiconductor, Inc.
+ * Copyright (C) 2016 Beck IPC GmbH
+ * Copyright (C) 2017 Kernel Concepts GmbH
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/* Device tree for SC145 H02 */
+
+#include "imx6ul-sc145.dtsi"
+
+&fec1 {
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_enet1>;
+    phy-mode = "rmii";
+    phy-handle = <&ethphy1>;
+    phy-supply = <&reg_vref_3v3>;
+    bus-no = <0>;
+    status = "okay";
+};
+
+&fec2 {
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_enet2>;
+    phy-mode = "rmii";
+    phy-handle = <&ethphy2>;
+    phy-supply = <&reg_vref_3v3>;
+    bus-no = <1>;
+    status = "okay";
+
+    mdio {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        ethphy1: ethernet-phy@1 {
+            compatible = "ethernet-phy-ieee802.3-c22";
+            reg = <1>;
+        };
+
+        ethphy2: ethernet-phy@2 {
+            compatible = "ethernet-phy-ieee802.3-c22";
+            reg = <2>;
+        };
+    };
+};
