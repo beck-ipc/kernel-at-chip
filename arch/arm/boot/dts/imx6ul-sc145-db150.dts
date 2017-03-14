@@ -19,7 +19,7 @@
     compatible = "beck,imx6ul-sc145", "fsl,imx6ul";
 
     chosen {
-        stdout-path = &uart1;
+        stdout-path = &uart4;
     };
 };
 
@@ -32,7 +32,7 @@
     status = "okay";
 };
 
-&uart5 {
+&uart4 {
     status = "okay";
 };
 
