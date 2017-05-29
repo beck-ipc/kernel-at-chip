@@ -613,4 +613,11 @@
 			MX6UL_PAD_LCD_DATA23__LCDIF_DATA23	0x10
 		>;
 	};
+	/*AD7879 on FB150-GA01*/
+	pinctrl_touch: touchgrp {
+		fsl,pins = <
+			MX6UL_PAD_UART3_RX_DATA__GPIO1_IO25 0x130a0 /* INTERRUPT */
+			/* MX6UL_PAD_UART3_TX_DATA__GPIO1_IO24 0x1b020 */ /* potential RESET */
+		>;
+	};
 };
