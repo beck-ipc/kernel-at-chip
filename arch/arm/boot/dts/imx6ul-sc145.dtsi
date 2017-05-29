@@ -394,11 +394,6 @@
         >;
     };
 
-    /* PWM1 */
-    pinctrl_pwm1_default: pwm1grp_default {
-        fsl,pins = <>;
-    };
-
     pinctrl_pwm1: pwm1grp {
         fsl,pins = <
             MX6UL_PAD_GPIO1_IO08__PWM1_OUT       0x110b0
@@ -581,6 +576,8 @@
             MX6UL_PAD_NAND_DQS__QSPI_A_SS0_B      0x70a1
         >;
     };
+
+    /* DISPLAY FB150-GA01'*/
 	pinctrl_lcd: lcdgrp {
 		fsl,pins = <
 			MX6UL_PAD_LCD_CLK__LCDIF_CLK		0x10 /* LSCLK */
@@ -613,7 +610,7 @@
 			MX6UL_PAD_LCD_DATA23__LCDIF_DATA23	0x10
 		>;
 	};
-	/*AD7879 on FB150-GA01*/
+	/* TOUCHSCREEN on FB150-GA01*/
 	pinctrl_touch: touchgrp {
 		fsl,pins = <
 			MX6UL_PAD_UART3_RX_DATA__GPIO1_IO25 0x130a0 /* INTERRUPT */
