@@ -43,3 +43,38 @@
 &i2c4 {
     status = "disabled";
 };
+
+&lcdif {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lcd>;
+	display = <&display>;
+	status = "okay";
+
+	display: display@di0 {
+		bits-per-pixel = <32>;
+		bus-width = <24>;
+		status = "okay";
+
+		display-timings {
+			GA01 {
+				clock-frequency = <9000000>;
+				hactive = <480>;
+				vactive = <272>;
+				hback-porch = <0>;
+				hsync-len = <43>;
+				hfront-porch = <8>;
+				vback-porch = <0>;
+				vsync-len = <12>;
+				vfront-porch = <4>;
+				hsync-active = <0>;
+				vsync-active = <4>;
+				de-active = <1>;
+				pixelclk-active = <0>;
+			};
+		};
+	};
+};
+
+&i2c4 {
+	status = "okay";
+};
