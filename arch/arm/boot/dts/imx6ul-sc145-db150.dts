@@ -97,6 +97,10 @@
 		interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
 		touchscreen-inverted-y;
 	};
+	vcnl@13 {
+		compatible = "vcnl4000";
+		reg = <0x13>;
+	};
 };
 
 &ecspi1 {
