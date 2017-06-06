@@ -8,9 +8,15 @@
  * published by the Free Software Foundation.
  */
 
-/* Device tree include for SC145 H02 */
+/* Device tree include for SC165 H00 */
 
 #include "imx6ul-sc1x5-common.dtsi"
+
+/ {
+    memory {
+        reg = <0x80000000 0x20000000>;
+    };   
+};
 
 &fec1 {
     pinctrl-names = "default";
