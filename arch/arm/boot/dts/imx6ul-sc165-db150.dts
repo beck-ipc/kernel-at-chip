@@ -1,0 +1,136 @@
+/*
+ * Copyright (C) 2015 Freescale Semiconductor, Inc.
+ * Copyright (C) 2016 Beck IPC GmbH
+ * Copyright (C) 2017 Kernel Concepts GmbH
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/* Device tree for SC165-H00 on DB150 evaluation baseboard */
+
+/dts-v1/;
+#include "imx6ul.dtsi"
+#include "imx6ul-sc165-h00.dtsi"
+
+/ {
+    model = "Beck IPC@CHIP SC165, DB150 Baseboard";
+    compatible = "beck,imx6ul-sc165", "fsl,imx6ul";
+
+    chosen {
+        stdout-path = &uart4;
+    };
+};
+
+
+&fec2 {
+    status = "okay";
+};
+
+&can2 {
+    status = "okay";
+};
+
+&uart4 {
+    status = "okay";
+};
+
+&usdhc2 {
+    status = "disabled";
+};
+
+&i2c4 {
+    status = "disabled";
+};
+
+&lcdif {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lcd>;
+	display = <&display>;
+	status = "okay";
+
+	display: display@di0 {
+		bits-per-pixel = <32>;
+		bus-width = <24>;
+		status = "okay";
+
+		display-timings {
+			GA01 {
+				clock-frequency = <9000000>;
+				hactive = <480>;
+				vactive = <272>;
+				hback-porch = <0>;
+				hsync-len = <43>;
+				hfront-porch = <8>;
+				vback-porch = <0>;
+				vsync-len = <12>;
+				vfront-porch = <4>;
+				hsync-active = <0>;
+				vsync-active = <4>;
+				de-active = <1>;
+				pixelclk-active = <0>;
+			};
+		};
+	};
+};
+
+&i2c4 {
+	status = "okay";
+
+	ad7879@2c {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touch>;
+		compatible = "adi,ad7879-1";
+		reg = <0x2c>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
+		touchscreen-max-pressure = <4096>;
+		adi,resistance-plate-x = <120>;
+		status = "disabled";
+	};
+
+	touch@4a {
+		compatible = "atmel,maxtouch";
+		reg = <0x4a>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
+		touchscreen-inverted-y;
+	};
+	vcnl@13 {
+		compatible = "vcnl4000";
+		reg = <0x13>;
+	};
+};
+
+&ecspi1 {
+    fsl,spi-num-chipselects = <1>;
+    cs-gpios = <0>, <&gpio1 31 0>;
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_ecspi1>;
+    status = "okay";
+
+	gpiom1: gpio@1 {
+		compatible = "microchip,mcp23s17";
+		gpio-controller;
+		#gpio-cells = <2>;
+		microchip,spi-present-mask = <0x01>;
+		reg = <1>;
+		spi-max-frequency = <1000000>;
+        interrupt-parent = <&gpio1>;
+        interrupts = <30 IRQ_TYPE_LEVEL_LOW>;
+        interrupt-controller;
+        #interrupt-cells=<2>;
+        microchip,irq-mirror;
+	};
+};
+
+&pinctrl_ecspi1 {
+	fsl,pins = <
+		MX6UL_PAD_UART5_RX_DATA__GPIO1_IO31 0x1b020
+		MX6UL_PAD_UART5_TX_DATA__GPIO1_IO30 0x1b020
+		MX6UL_PAD_CSI_DATA07__ECSPI1_MISO   0x1b020
+		MX6UL_PAD_CSI_DATA06__ECSPI1_MOSI   0x1b020
+		MX6UL_PAD_CSI_DATA04__ECSPI1_SCLK   0x1b020
+	>;
+};
