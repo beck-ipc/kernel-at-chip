@@ -3297,11 +3297,29 @@ fec_probe(struct platform_device *pdev)
 	int num_tx_qs;
 	int num_rx_qs;
 
+	/* BECK: add bus number property */
+	char devName[IFNAMSIZ] = "eth0";
+	const void *pBusNo;
+	int busNo = -1;
+
 	fec_enet_get_queue_num(pdev, &num_tx_qs, &num_rx_qs);
 
 	/* Init network device */
-	ndev = alloc_etherdev_mqs(sizeof(struct fec_enet_private) +
-				  FEC_STATS_SIZE, num_tx_qs, num_rx_qs);
+	/* BECK: add bus number property */
+	pBusNo = of_get_property(np, "bus-no", NULL);
+	if (pBusNo)
+		busNo = be32_to_cpup(pBusNo);
+	if (busNo >= 0 && busNo <= 9)
+	{
+		devName[strlen(devName) - 1] += (char)busNo;
+		ndev = alloc_netdev_mqs(sizeof(struct fec_enet_private) + FEC_STATS_SIZE,
+			      devName, NET_NAME_UNKNOWN, ether_setup, num_tx_qs, num_rx_qs);
+	}
+	else
+	{
+		ndev = alloc_etherdev_mqs(sizeof(struct fec_enet_private) +
+					 FEC_STATS_SIZE, num_tx_qs, num_rx_qs);
+	}
 	if (!ndev)
 		return -ENOMEM;
 
