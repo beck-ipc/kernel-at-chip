@@ -38,6 +38,7 @@ rsi_91x-$(CONFIG_RSI_DEBUGFS)	+= rsi_91x_debugfs.o
 rsi_91x-$(CONFIG_RSI_BT_ALONE)	+= rsi_91x_hci.o
 rsi_91x-$(CONFIG_RSI_COEX)	+= rsi_91x_coex.o
 rsi_91x-$(CONFIG_RSI_COEX)	+= rsi_91x_hci.o
+rsi_91x-$(CONFIG_RSI_COEX)	+= rsi_91x_zigb.o
 rsi_91x-$(CONFIG_RSI_11K)	+= rsi_91x_rrm.o
 
 rsi_usb-$(CONFIG_RSI_USB)	+= rsi_91x_usb.o rsi_91x_usb_ops.o
