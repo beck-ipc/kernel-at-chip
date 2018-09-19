@@ -1005,6 +1005,15 @@ config SUN4I_GPADC
 	  To compile this driver as a module, choose M here: the module will be
 	  called sun4i-gpadc-iio.
 
+config SILAB
+	tristate "Beck IPC Silab C8051 ADC"
+	depends on SPI
+	select GPIOLIB
+	help
+	  Enable here to build support for the Beck IPC Silab C8051 ADC.
+
+	  This driver supports all 4 channels of analog inputs.
+
 config TI_ADC081C
 	tristate "Texas Instruments ADC081C/ADC101C/ADC121C family"
 	depends on I2C
