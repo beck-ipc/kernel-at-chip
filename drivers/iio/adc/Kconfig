@@ -434,6 +434,15 @@ config STX104
 	  The base port addresses for the devices may be configured via the base
 	  array module parameter.
 
+config SILAB
+	tristate "Beck IPC Silab C8051 ADC"
+	depends on SPI
+	select GPIOLIB
+	help
+	  Enable here to build support for the Beck IPC Silab C8051 ADC.
+
+	  This driver supports all 4 channels of analog inputs.
+
 config TI_ADC081C
 	tristate "Texas Instruments ADC081C/ADC101C/ADC121C family"
 	depends on I2C
