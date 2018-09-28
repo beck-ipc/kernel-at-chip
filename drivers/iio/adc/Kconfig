@@ -165,6 +165,16 @@ config BCM_IPROC_ADC
 	  Broadcom iProc ADC driver. Broadcom iProc ADC controller has 8
 	  channels. The driver allows the user to read voltage values.
 
+config BECK_CTI_EXT08_ADC
+tristate "Beck IPC CTI EXT08"
+	depends on SPI
+	select GPIOLIB
+	help
+	  Enable here to build support for the Beck IPC CTI EXT08 ADC.
+
+	  This driver supports all 8 channels of analog inputs and
+	  all 8 channels of digital inputs/outputs.
+
 config BERLIN2_ADC
 	tristate "Marvell Berlin2 ADC driver"
 	depends on ARCH_BERLIN
