@@ -427,7 +427,10 @@ dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ul-sc145-db150.dtb \
 	imx6ul-sc165-db150.dtb \
 	imx6ul-sc165-cti1xx-v11.dtb \
-	imx6ul-sc165-cti1xx-v12.dtb
+	imx6ul-sc165-cti1xx-v12.dtb \
+	imx6ul-sc145-cti1xx-v12.dtb \
+	imx6ul-sc145-cti100-mio16-wlan.dtb \
+	imx6ul-sc165-cti100-mio16-wlan.dtb
 dtb-$(CONFIG_SOC_IMX7D) += \
 	imx7d-cl-som-imx7.dtb \
 	imx7d-colibri-eval-v3.dtb \

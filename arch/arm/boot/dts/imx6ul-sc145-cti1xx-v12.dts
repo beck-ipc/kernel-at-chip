@@ -1,0 +1,392 @@
+/*
+ * Copyright (C) 2015 Freescale Semiconductor, Inc.
+ * Copyright (C) 2016 Beck IPC GmbH
+ * Copyright (C) 2017, 2018 Kernel Concepts GmbH
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * Device tree for SC145-H02 on Beck CTI1xx baseboards
+ *
+ */
+
+/dts-v1/;
+#include "imx6ul.dtsi"
+#include "imx6ul-sc145-h02.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Beck IPC@CHIP SC145, CTI1xx devices";
+	compatible = "beck,imx6ul-sc145", "fsl,imx6ul";
+
+	chosen {
+		stdout-path = &uart4;
+	};
+
+	/* Display unit keypad */
+	keypad {
+		compatible = "gpio-keys-polled";
+		poll-interval = <100>;
+		autorepeat;
+
+		key_down {
+			label = "Keypad Down";
+			linux,code = <108>;
+			gpios = <&pcf8575 8 1>;
+		};
+		key_esc {
+			label = "Keypad Escape";
+			linux,code = <1>;
+			gpios = <&pcf8575 9 1>;
+		};
+		key_up {
+			label = "Keypad Up";
+			linux,code = <103>;
+			gpios = <&pcf8575 10 1>;
+		};
+		key_enter {
+			label = "Keypad Enter";
+			linux,code = <28>;
+			gpios = <&pcf8575 11 1>;
+		};
+		key_right {
+			label = "Keypad Right";
+			linux,code = <106>;
+			gpios = <&pcf8575 12 1>;
+		};
+		key_left {
+			label = "Keypad Left";
+			linux,code = <105>;
+			gpios = <&pcf8575 13 1>;
+		};
+	};
+
+	/* LEDs for keypad buttons */
+	display-keypad-leds {
+		compatible = "gpio-leds";
+		led_red {
+			label = "LED Red";
+			gpios = <&pcf8575 7 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+		led_up {
+			label = "LED Up";
+			gpios = <&pcf8575 4 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			panic-indicator;
+		};
+		led_down {
+			label = "LED Down";
+			gpios = <&pcf8575 1 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			panic-indicator;
+		};
+		led_left {
+			label = "LED Left";
+			gpios = <&pcf8575 0 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			panic-indicator;
+		};
+		led_right {
+			label = "LED Right";
+			gpios = <&pcf8575 2 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			panic-indicator;
+		};
+		led_enter {
+			label = "LED Enter";
+			gpios = <&pcf8575 3 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			panic-indicator;
+		};
+		led_esc {
+			label = "LED Escape";
+			gpios = <&pcf8575 5 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			panic-indicator;
+		};
+	};
+
+	/* LEDs located on main board */
+	mainboard-leds {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_leds>;
+		compatible = "gpio-leds";
+		led_y {
+	                label = "LED Status";
+	                gpios = <&gpio5 0 GPIO_ACTIVE_HIGH>;
+		        default-state = "off";
+	                linux,default-trigger = "heartbeat";
+	        };
+		led_r {
+	                label = "LED Tx";
+	                gpios = <&gpio5 3 GPIO_ACTIVE_HIGH>;
+		        default-state = "off";
+		};
+	};
+
+	reg_vref2v5: regulator-2v5 {
+		compatible = "regulator-fixed";
+		regulator-name = "vref";
+		regulator-min-microvolt = <2500000>;
+		regulator-max-microvolt = <2500000>;
+		regulator-always-on;
+	};
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		partition@0 {		/* 512k */
+			label = "bootloader";
+			reg = <0x0000000 0x0080000>;
+			read-only;
+		};
+
+		partition@80000 {	/* 256k */
+			label = "environment";
+			reg = <0x0080000 0x0040000>;
+		};
+
+		partition@C0000 {	/* ubi container */
+			label = "filesystem";
+			reg = <0x00C0000 0xFF40000>;
+		};
+	};
+};
+
+&fec2 {
+    status = "okay";
+};
+
+&can1 {
+    status = "disabled";
+};
+
+&can2 {
+    status = "disabled";
+};
+
+&uart1 {
+    status = "okay";
+    dmas = <&sdma 25 4 0>, <&sdma 26 4 0>;
+    dma-names = "rx", "tx";
+
+    /* RS485 */
+    linux,rs485-enabled-at-boot-time;
+    rs485-rts-delay = <0 200>;              // in milliseconds
+    fsl,uart-has-rtscts;
+};
+
+&uart5 {
+    status = "disabled";
+    /delete-node/ fsl,uart-has-rtscts;
+};
+
+&uart4 {
+    status = "okay";
+};
+
+&uart5 {
+    status = "disabled";
+    /delete-node/ fsl,uart-has-rtscts;
+};
+
+&usdhc1 {
+    status = "okay";
+    cd-gpios = <&gpio4 26 GPIO_ACTIVE_LOW>; /* 117 high, 115 low */
+    disable-wp;
+    vmmc-supply = <&reg_vref_3v3>;
+    /delete-node/ wp-gpios;
+};
+
+
+&usdhc2 {
+    status = "okay";
+};
+
+&usbotg1 {
+	status = "disabled";
+};
+
+&usbotg2 {
+	status = "disabled";
+};
+
+&lcdif {
+	status = "disabled";
+};
+
+&i2c1 {
+    status = "okay";
+    /* GPIO expander display tastatur, no IRQ line */
+    pcf8575: gpio@20 {
+             compatible = "nxp,pcf8575";
+             reg = <0x20>;
+             gpio-controller;
+             #gpio-cells = <2>;
+   };
+};
+
+
+&i2c2 {
+    status = "okay";
+
+    /* AD5337 analog out */
+    dac: ad5337@0C {
+	compatible = "ad,ad5337";
+	reg = <0x0C>;
+        vref = <&reg_vref2v5>;
+	clock-frequency = <30000>;
+    };
+};
+
+&i2c4 {
+    status = "ok";
+
+    /* External RTC CTI 115 */
+    rtc115: m41t00@68 {
+	compatible = "st,m41t00";
+	reg = <0x68>;
+    };
+};
+
+&ecspi1 {
+    fsl,spi-num-chipselects = <1>;
+    cs-gpios = <&gpio3 26 GPIO_ACTIVE_LOW>;
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_ecspi1>;
+    status = "okay";
+
+    /* Display */
+    spidev1display: spidev@0 {
+        compatible = "spidev";
+        spi-max-frequency = <0>;
+        reg = <0>;
+    };
+};
+
+&pinctrl_ecspi1 {
+	fsl,pins = <
+		MX6UL_PAD_CSI_DATA07__ECSPI1_MISO   0x1b020
+		MX6UL_PAD_CSI_DATA06__ECSPI1_MOSI   0x1b020
+		MX6UL_PAD_CSI_DATA04__ECSPI1_SCLK   0x1b020
+	>;
+};
+
+&ecspi2 {
+    fsl,spi-num-chipselects = <1>;
+    cs-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_ecspi2>;
+    status = "okay";
+
+    /* C0851F352 "Silab" analog input */
+    spidev2ain: spidev@1 {
+        compatible = "silab4chan";
+        spi-max-frequency = <350000>;
+        spi-cpha=<1>;
+        spi-cpol=<1>;
+        reg = <0>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_silab>;
+        gpio-reset = <&gpio5 4 GPIO_ACTIVE_HIGH>;
+    };
+};
+
+/* SPI2 */
+&pinctrl_ecspi2 {
+    fsl,pins = <
+	MX6UL_PAD_CSI_DATA01__GPIO4_IO22     0x0b0b0
+        MX6UL_PAD_CSI_DATA03__ECSPI2_MISO    0x1b020
+        MX6UL_PAD_CSI_DATA02__ECSPI2_MOSI    0x1b020
+        MX6UL_PAD_CSI_DATA00__ECSPI2_SCLK    0x1b020
+    >;
+};
+
+/* USB OTG port */
+&usbotg1 {
+    vbus-supply = <&reg_vref_5v>;
+    dr_mode = "otg";
+    srp-disable;
+    hnp-disable;
+    adp-disable;
+    disable-over-current;
+    status = "okay";
+};
+
+&iomuxc {
+	hoggrp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA17__GPIO3_IO22	0x0b0b0 /* switch SW2: USR */
+			MX6UL_PAD_LCD_DATA19__GPIO3_IO24	0x0b0b0 /* switch SW1: INIT */
+			MX6UL_PAD_LCD_DATA20__GPIO3_IO25	0x0b0b0 /* relay RL1: Q1 */
+			MX6UL_PAD_LCD_DATA21__GPIO3_IO26	0x0b0b0 /* display SPI CS */
+			MX6UL_PAD_LCD_DATA22__GPIO3_IO27	0x0b0b0 /* relay RL2: Q2 */
+			MX6UL_PAD_LCD_DATA23__GPIO3_IO28	0x0b0b0 /* relay RL3: Q3 */
+			MX6UL_PAD_LCD_DATA15__GPIO3_IO20	0x0b0b0 /* relay RL4: Q4 */
+			MX6UL_PAD_UART5_TX_DATA__GPIO1_IO30	0x0b0b0 /* solid state relay RL5: Q5 */
+			MX6UL_PAD_UART5_RX_DATA__GPIO1_IO31	0x0b0b0 /* solid state relay RL6: Q6 */
+			MX6UL_PAD_UART2_CTS_B__GPIO1_IO22	0x0b0b0 /* digital input DI4: IN4 */
+			MX6UL_PAD_LCD_DATA14__GPIO3_IO19	0x0b0b0 /* digital input DI1: IN1 */
+			MX6UL_PAD_LCD_DATA04__GPIO3_IO09	0x0b0b0 /* digital input DI2: IN2 */
+			MX6UL_PAD_UART2_RTS_B__GPIO1_IO23	0x0b0b0 /* digital input DI3: IN3 */
+			MX6UL_PAD_SNVS_TAMPER1__GPIO5_IO01	0x0b0b0 /* Display register select */
+		>;
+	};
+
+	pinctrl_leds: mbleds {
+		fsl,pins = <
+			MX6UL_PAD_SNVS_TAMPER0__GPIO5_IO00	0x0b0b0 /* Status LED */
+			MX6UL_PAD_SNVS_TAMPER3__GPIO5_IO03	0x0b0b0 /* TX LED */
+		>;
+	};
+
+	pinctrl_silab: silabreset {
+		fsl,pins = <
+			MX6UL_PAD_SNVS_TAMPER4__GPIO5_IO04	0x0b0b0 /* RST_AI */
+		>;
+	};
+
+    /* SDIO1 / SDHC card */
+    pinctrl_usdhc1_default {
+        fsl,pins = <
+            MX6UL_PAD_SD1_CMD__USDHC1_CMD           0x17059
+            MX6UL_PAD_SD1_CLK__USDHC1_CLK           0x10071
+            MX6UL_PAD_SD1_DATA0__USDHC1_DATA0       0x17059
+            MX6UL_PAD_SD1_DATA1__USDHC1_DATA1       0x17059
+            MX6UL_PAD_SD1_DATA2__USDHC1_DATA2       0x17059
+            MX6UL_PAD_SD1_DATA3__USDHC1_DATA3       0x17059
+            MX6UL_PAD_CSI_DATA05__GPIO4_IO26        0x17059 /* SD1 CD */
+        >;
+    };
+
+    pinctrl_usdhc1_100mhz {
+        fsl,pins = <
+            MX6UL_PAD_SD1_CMD__USDHC1_CMD           0x170b9
+            MX6UL_PAD_SD1_CLK__USDHC1_CLK           0x100b9
+            MX6UL_PAD_SD1_DATA0__USDHC1_DATA0       0x170b9
+            MX6UL_PAD_SD1_DATA1__USDHC1_DATA1       0x170b9
+            MX6UL_PAD_SD1_DATA2__USDHC1_DATA2       0x170b9
+            MX6UL_PAD_SD1_DATA3__USDHC1_DATA3       0x170b9
+            MX6UL_PAD_CSI_DATA05__GPIO4_IO26        0x17059 /* SD1 CD */
+        >;
+    };
+
+    pinctrl_usdhc1_200mhz {
+        fsl,pins = <
+            MX6UL_PAD_SD1_CMD__USDHC1_CMD           0x170f9
+            MX6UL_PAD_SD1_CLK__USDHC1_CLK           0x100f9
+            MX6UL_PAD_SD1_DATA0__USDHC1_DATA0       0x170f9
+            MX6UL_PAD_SD1_DATA1__USDHC1_DATA1       0x170f9
+            MX6UL_PAD_SD1_DATA2__USDHC1_DATA2       0x170f9
+            MX6UL_PAD_SD1_DATA3__USDHC1_DATA3       0x170f9
+            MX6UL_PAD_CSI_DATA05__GPIO4_IO26        0x17059 /* SD1 CD */
+        >;
+    };
+};
