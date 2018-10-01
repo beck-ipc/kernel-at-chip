@@ -36,6 +36,15 @@
     status = "okay";
 };
 
+&uart5 {
+    status = "okay";
+
+    /* RS485 */
+    linux,rs485-enabled-at-boot-time;
+    rs485-rts-delay = <0 200>;              // in milliseconds
+    fsl,uart-has-rtscts;
+};
+
 &usdhc2 {
     status = "disabled";
 };
