@@ -148,9 +148,9 @@
     status = "ok";
 
     /* External RTC */
-    rtc115: m41t00@68 {
-	compatible = "st,m41t00";
-	reg = <0x68>;
+    rtc_cti: r2221tl@32 {
+        compatible = "ricoh,r2221tl";
+        reg = <0x32>;
     };
 };
 
