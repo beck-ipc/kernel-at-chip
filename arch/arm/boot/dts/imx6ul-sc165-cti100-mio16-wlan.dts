@@ -24,106 +24,31 @@
 		stdout-path = &uart4;
 	};
 
-	/* Display unit keypad */
-	keypad {
-		compatible = "gpio-keys-polled";
-		poll-interval = <100>;
-		autorepeat;
-
-		key_down {
-			label = "Keypad Down";
-			linux,code = <108>;
-			gpios = <&pcf8575 8 1>;
-		};
-		key_esc {
-			label = "Keypad Escape";
-			linux,code = <1>;
-			gpios = <&pcf8575 9 1>;
-		};
-		key_up {
-			label = "Keypad Up";
-			linux,code = <103>;
-			gpios = <&pcf8575 10 1>;
-		};
-		key_enter {
-			label = "Keypad Enter";
-			linux,code = <28>;
-			gpios = <&pcf8575 11 1>;
-		};
-		key_right {
-			label = "Keypad Right";
-			linux,code = <106>;
-			gpios = <&pcf8575 12 1>;
-		};
-		key_left {
-			label = "Keypad Left";
-			linux,code = <105>;
-			gpios = <&pcf8575 13 1>;
-		};
-	};
-
-	/* LEDs for keypad buttons */
-	display-keypad-leds {
-		compatible = "gpio-leds";
-		led_red {
-			label = "LED Red";
-			gpios = <&pcf8575 7 GPIO_ACTIVE_LOW>;
-			default-state = "on";
-		};
-		led_up {
-			label = "LED Up";
-			gpios = <&pcf8575 4 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			panic-indicator;
-		};
-		led_down {
-			label = "LED Down";
-			gpios = <&pcf8575 1 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			panic-indicator;
-		};
-		led_left {
-			label = "LED Left";
-			gpios = <&pcf8575 0 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			panic-indicator;
-		};
-		led_right {
-			label = "LED Right";
-			gpios = <&pcf8575 2 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			panic-indicator;
-		};
-		led_enter {
-			label = "LED Enter";
-			gpios = <&pcf8575 3 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			panic-indicator;
-		};
-		led_esc {
-			label = "LED Escape";
-			gpios = <&pcf8575 5 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			panic-indicator;
-		};
-	};
-
 	/* LEDs located on main board */
 	mainboard-leds {
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_leds>;
 		compatible = "gpio-leds";
-		led_y {
-	                label = "LED Status";
-	                gpios = <&gpio5 0 GPIO_ACTIVE_HIGH>;
-		        default-state = "off";
-	                linux,default-trigger = "heartbeat";
-	        };
-		led_r {
-	                label = "LED Tx";
-	                gpios = <&gpio5 3 GPIO_ACTIVE_HIGH>;
-		        default-state = "off";
+		led_g1 {
+			label = "LED PLC";
+			gpios = <&gpio5 0 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		led_g2 {
+			label = "LED Portal";
+			gpios = <&gpio5 1 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		led_g3 {
+			label = "LED WIFI";
+			gpios = <&gpio5 2 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		led_g4 {
+			label = "LED LED4";
+			gpios = <&gpio5 3 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
 		};
 	};
 
@@ -165,7 +90,7 @@
 };
 
 &can1 {
-    status = "disabled";
+    status = "okay";
 };
 
 &can2 {
@@ -173,19 +98,7 @@
 };
 
 &uart1 {
-    status = "okay";
-    dmas = <&sdma 25 4 0>, <&sdma 26 4 0>;
-    dma-names = "rx", "tx";
-
-    /* RS485 */
-    linux,rs485-enabled-at-boot-time;
-    rs485-rts-delay = <0 200>;              // in milliseconds
-    fsl,uart-has-rtscts;
-};
-
-&uart5 {
     status = "disabled";
-    /delete-node/ fsl,uart-has-rtscts;
 };
 
 &uart4 {
@@ -193,7 +106,7 @@
 };
 
 &uart5 {
-    status = "disabled";
+    status = "ok";
     /delete-node/ fsl,uart-has-rtscts;
 };
 
@@ -224,32 +137,17 @@
 
 &i2c1 {
     status = "okay";
-    /* GPIO expander display tastatur, no IRQ line */
-    pcf8575: gpio@20 {
-             compatible = "nxp,pcf8575";
-             reg = <0x20>;
-             gpio-controller;
-             #gpio-cells = <2>;
-   };
 };
 
 
 &i2c2 {
     status = "okay";
-
-    /* AD5337 analog out */
-    dac: ad5337@0C {
-	compatible = "ad,ad5337";
-	reg = <0x0C>;
-        vref = <&reg_vref2v5>;
-	clock-frequency = <30000>;
-    };
 };
 
 &i2c4 {
     status = "ok";
 
-    /* External RTC CTI 115 */
+    /* External RTC */
     rtc115: m41t00@68 {
 	compatible = "st,m41t00";
 	reg = <0x68>;
@@ -258,16 +156,18 @@
 
 &ecspi1 {
     fsl,spi-num-chipselects = <1>;
-    cs-gpios = <&gpio3 26 GPIO_ACTIVE_LOW>;
+    cs-gpios = <&gpio1 30 GPIO_ACTIVE_LOW>;
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_ecspi1>;
     status = "okay";
 
-    /* Display */
-    spidev1display: spidev@0 {
-        compatible = "spidev";
-        spi-max-frequency = <0>;
+    cti_ext08: cti_ext08@0 {
+        compatible = "cti_ext08_8ana_8dig";
+        spi-max-frequency = <1000000>;
+        spi-cpha=<0>;
+        spi-cpol=<0>;
         reg = <0>;
+        gpio-reset = <&gpio1 18 GPIO_ACTIVE_HIGH>;
     };
 };
 
@@ -276,8 +176,11 @@
 		MX6UL_PAD_CSI_DATA07__ECSPI1_MISO   0x1b020
 		MX6UL_PAD_CSI_DATA06__ECSPI1_MOSI   0x1b020
 		MX6UL_PAD_CSI_DATA04__ECSPI1_SCLK   0x1b020
+		MX6UL_PAD_UART1_CTS_B__GPIO1_IO18   0x0b0b0
+		MX6UL_PAD_UART5_TX_DATA__GPIO1_IO30 0x0b0b0
 	>;
 };
+
 
 &ecspi2 {
     fsl,spi-num-chipselects = <1>;
@@ -286,23 +189,12 @@
     pinctrl-0 = <&pinctrl_ecspi2>;
     status = "okay";
 
-    /* C0851F352 "Silab" analog input */
-    spidev2ain: spidev@1 {
-        compatible = "silab4chan";
-        spi-max-frequency = <350000>;
-        spi-cpha=<1>;
-        spi-cpol=<1>;
-        reg = <0>;
-        pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_silab>;
-        gpio-reset = <&gpio5 4 GPIO_ACTIVE_HIGH>;
-    };
 };
 
 /* SPI2 */
 &pinctrl_ecspi2 {
     fsl,pins = <
-	MX6UL_PAD_CSI_DATA01__GPIO4_IO22     0x0b0b0
+        MX6UL_PAD_CSI_DATA01__GPIO4_IO22     0x0b0b0
         MX6UL_PAD_CSI_DATA03__ECSPI2_MISO    0x1b020
         MX6UL_PAD_CSI_DATA02__ECSPI2_MOSI    0x1b020
         MX6UL_PAD_CSI_DATA00__ECSPI2_SCLK    0x1b020
@@ -321,37 +213,6 @@
 };
 
 &iomuxc {
-	hoggrp {
-		fsl,pins = <
-			MX6UL_PAD_LCD_DATA17__GPIO3_IO22	0x0b0b0 /* switch SW2: USR */
-			MX6UL_PAD_LCD_DATA19__GPIO3_IO24	0x0b0b0 /* switch SW1: INIT */
-			MX6UL_PAD_LCD_DATA20__GPIO3_IO25	0x0b0b0 /* relay RL1: Q1 */
-			MX6UL_PAD_LCD_DATA21__GPIO3_IO26	0x0b0b0 /* display SPI CS */
-			MX6UL_PAD_LCD_DATA22__GPIO3_IO27	0x0b0b0 /* relay RL2: Q2 */
-			MX6UL_PAD_LCD_DATA23__GPIO3_IO28	0x0b0b0 /* relay RL3: Q3 */
-			MX6UL_PAD_LCD_DATA15__GPIO3_IO20	0x0b0b0 /* relay RL4: Q4 */
-			MX6UL_PAD_UART5_TX_DATA__GPIO1_IO30	0x0b0b0 /* solid state relay RL5: Q5 */
-			MX6UL_PAD_UART5_RX_DATA__GPIO1_IO31	0x0b0b0 /* solid state relay RL6: Q6 */
-			MX6UL_PAD_UART2_CTS_B__GPIO1_IO22	0x0b0b0 /* digital input DI4: IN4 */
-			MX6UL_PAD_LCD_DATA14__GPIO3_IO19	0x0b0b0 /* digital input DI1: IN1 */
-			MX6UL_PAD_LCD_DATA04__GPIO3_IO09	0x0b0b0 /* digital input DI2: IN2 */
-			MX6UL_PAD_UART2_RTS_B__GPIO1_IO23	0x0b0b0 /* digital input DI3: IN3 */
-			MX6UL_PAD_SNVS_TAMPER1__GPIO5_IO01	0x0b0b0 /* Display register select */
-		>;
-	};
-
-	pinctrl_leds: mbleds {
-		fsl,pins = <
-			MX6UL_PAD_SNVS_TAMPER0__GPIO5_IO00	0x0b0b0 /* Status LED */
-			MX6UL_PAD_SNVS_TAMPER3__GPIO5_IO03	0x0b0b0 /* TX LED */
-		>;
-	};
-
-	pinctrl_silab: silabreset {
-		fsl,pins = <
-			MX6UL_PAD_SNVS_TAMPER4__GPIO5_IO04	0x0b0b0 /* RST_AI */
-		>;
-	};
 
     /* SDIO1 / SDHC card */
     pinctrl_usdhc1_default {
