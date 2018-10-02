@@ -24,23 +24,31 @@
 		stdout-path = &uart4;
 	};
 
-
 	/* LEDs located on main board */
 	mainboard-leds {
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_leds>;
 		compatible = "gpio-leds";
-		led_y {
-	                label = "LED Status";
-	                gpios = <&gpio5 0 GPIO_ACTIVE_HIGH>;
-		        default-state = "off";
-	                linux,default-trigger = "heartbeat";
-	        };
-		led_r {
-	                label = "LED Tx";
-	                gpios = <&gpio5 3 GPIO_ACTIVE_HIGH>;
-		        default-state = "off";
+		led_g1 {
+			label = "LED PLC";
+			gpios = <&gpio5 0 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		led_g2 {
+			label = "LED Portal";
+			gpios = <&gpio5 1 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		led_g3 {
+			label = "LED WIFI";
+			gpios = <&gpio5 2 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		led_g4 {
+			label = "LED LED4";
+			gpios = <&gpio5 3 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
 		};
 	};
 
@@ -82,7 +90,7 @@
 };
 
 &can1 {
-    status = "disabled";
+    status = "okay";
 };
 
 &can2 {
@@ -93,13 +101,13 @@
     status = "disabled";
 };
 
-&uart5 {
-    status = "disabled";
-    /delete-node/ fsl,uart-has-rtscts;
-};
-
 &uart4 {
     status = "okay";
+};
+
+&uart5 {
+    status = "ok";
+    /delete-node/ fsl,uart-has-rtscts;
 };
 
 &usdhc1 {
@@ -129,32 +137,17 @@
 
 &i2c1 {
     status = "okay";
-    /* GPIO expander display tastatur, no IRQ line */
-    pcf8575: gpio@20 {
-             compatible = "nxp,pcf8575";
-             reg = <0x20>;
-             gpio-controller;
-             #gpio-cells = <2>;
-   };
 };
 
 
 &i2c2 {
     status = "okay";
-
-    /* AD5337 analog out */
-    dac: ad5337@0C {
-	compatible = "ad,ad5337";
-	reg = <0x0C>;
-        vref = <&reg_vref2v5>;
-	clock-frequency = <30000>;
-    };
 };
 
 &i2c4 {
     status = "ok";
 
-    /* External RTC CTI 115 */
+    /* External RTC */
     rtc115: m41t00@68 {
 	compatible = "st,m41t00";
 	reg = <0x68>;
@@ -201,7 +194,7 @@
 /* SPI2 */
 &pinctrl_ecspi2 {
     fsl,pins = <
-	MX6UL_PAD_CSI_DATA01__GPIO4_IO22     0x0b0b0
+        MX6UL_PAD_CSI_DATA01__GPIO4_IO22     0x0b0b0
         MX6UL_PAD_CSI_DATA03__ECSPI2_MISO    0x1b020
         MX6UL_PAD_CSI_DATA02__ECSPI2_MOSI    0x1b020
         MX6UL_PAD_CSI_DATA00__ECSPI2_SCLK    0x1b020
@@ -220,35 +213,6 @@
 };
 
 &iomuxc {
-	hoggrp {
-		fsl,pins = <
-			MX6UL_PAD_LCD_DATA17__GPIO3_IO22	0x0b0b0 /* switch SW2: USR */
-			MX6UL_PAD_LCD_DATA19__GPIO3_IO24	0x0b0b0 /* switch SW1: INIT */
-			MX6UL_PAD_LCD_DATA20__GPIO3_IO25	0x0b0b0 /* relay RL1: Q1 */
-			MX6UL_PAD_LCD_DATA21__GPIO3_IO26	0x0b0b0 /* display SPI CS */
-			MX6UL_PAD_LCD_DATA22__GPIO3_IO27	0x0b0b0 /* relay RL2: Q2 */
-			MX6UL_PAD_LCD_DATA23__GPIO3_IO28	0x0b0b0 /* relay RL3: Q3 */
-			MX6UL_PAD_LCD_DATA15__GPIO3_IO20	0x0b0b0 /* relay RL4: Q4 */
-			MX6UL_PAD_UART2_CTS_B__GPIO1_IO22	0x0b0b0 /* digital input DI4: IN4 */
-			MX6UL_PAD_LCD_DATA14__GPIO3_IO19	0x0b0b0 /* digital input DI1: IN1 */
-			MX6UL_PAD_LCD_DATA04__GPIO3_IO09	0x0b0b0 /* digital input DI2: IN2 */
-			MX6UL_PAD_UART2_RTS_B__GPIO1_IO23	0x0b0b0 /* digital input DI3: IN3 */
-			MX6UL_PAD_SNVS_TAMPER1__GPIO5_IO01	0x0b0b0 /* Display register select */
-		>;
-	};
-
-	pinctrl_leds: mbleds {
-		fsl,pins = <
-			MX6UL_PAD_SNVS_TAMPER0__GPIO5_IO00	0x0b0b0 /* Status LED */
-			MX6UL_PAD_SNVS_TAMPER3__GPIO5_IO03	0x0b0b0 /* TX LED */
-		>;
-	};
-
-	pinctrl_silab: silabreset {
-		fsl,pins = <
-			MX6UL_PAD_SNVS_TAMPER4__GPIO5_IO04	0x0b0b0 /* RST_AI */
-		>;
-	};
 
     /* SDIO1 / SDHC card */
     pinctrl_usdhc1_default {
