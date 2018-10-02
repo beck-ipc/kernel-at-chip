@@ -229,8 +229,6 @@
 			MX6UL_PAD_LCD_DATA22__GPIO3_IO27	0x0b0b0 /* relay RL2: Q2 */
 			MX6UL_PAD_LCD_DATA23__GPIO3_IO28	0x0b0b0 /* relay RL3: Q3 */
 			MX6UL_PAD_LCD_DATA15__GPIO3_IO20	0x0b0b0 /* relay RL4: Q4 */
-			MX6UL_PAD_UART5_TX_DATA__GPIO1_IO30	0x0b0b0 /* solid state relay RL5: Q5 */
-			MX6UL_PAD_UART5_RX_DATA__GPIO1_IO31	0x0b0b0 /* solid state relay RL6: Q6 */
 			MX6UL_PAD_UART2_CTS_B__GPIO1_IO22	0x0b0b0 /* digital input DI4: IN4 */
 			MX6UL_PAD_LCD_DATA14__GPIO3_IO19	0x0b0b0 /* digital input DI1: IN1 */
 			MX6UL_PAD_LCD_DATA04__GPIO3_IO09	0x0b0b0 /* digital input DI2: IN2 */
