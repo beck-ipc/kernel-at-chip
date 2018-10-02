@@ -156,7 +156,7 @@
 
 &ecspi1 {
     fsl,spi-num-chipselects = <1>;
-    cs-gpios = <&gpio1 30 GPIO_ACTIVE_LOW>;
+    cs-gpios = <0>, <&gpio1 30 GPIO_ACTIVE_LOW>;
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_ecspi1>;
     status = "okay";
@@ -166,7 +166,7 @@
         spi-max-frequency = <1000000>;
         spi-cpha=<0>;
         spi-cpol=<0>;
-        reg = <0>;
+        reg = <1>;
         gpio-reset = <&gpio1 18 GPIO_ACTIVE_HIGH>;
     };
 };
