@@ -17,24 +17,25 @@
 #include <linux/iio/iio.h>
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
+#include <linux/workqueue.h>
 
 #define SILAB_MESSAGE_LENGTH	14
 #define SILAB_INPUT_NUM		 4
 
 /*
  * RANGES (needs checking)
- * 31 Pt1000 (-50 .. 150 C) (-5000 .. 15000) in 0.01
- * 32 voltage 0V .. 10 V (0 - 10000) in 0.001
- * 33 resistance 0 .. 1600 ohm (0 - 16000) in 1 ohm
- * 34 current 0 .. 20 mA (0 - 20000) in 0.001
- * 35 resistance 0 .. 5000 ohm (0 - 50000) in 1 ohm
+ * 1 Pt1000 (-50 .. 150 C) (-5000 .. 15000) in 0.01
+ * 2 voltage 0V .. 10 V (0 - 10000) in 0.001
+ * 3 resistance 0 .. 1600 ohm (0 - 16000) in 1 ohm
+ * 4 current 0 .. 20 mA (0 - 20000) in 0.001
+ * 5 resistance 0 .. 5000 ohm (0 - 50000) in 1 ohm
  */
 
-#define SILAB_VAL_TEMPERATURE	0x11
-#define SILAB_VAL_VOLTAGE	0x22
-#define SILAB_VAL_RESISTANCE1	0x33
-#define SILAB_VAL_CURRENT	0x44
-#define SILAB_VAL_RESISTANCE2	0x55
+#define SILAB_VAL_TEMPERATURE	0x01
+#define SILAB_VAL_VOLTAGE	0x02
+#define SILAB_VAL_RESISTANCE1	0x03
+#define SILAB_VAL_CURRENT	0x04
+#define SILAB_VAL_RESISTANCE2	0x05
 
 struct silab_data_spec {
 	int type ;
@@ -59,28 +60,50 @@ struct silab {
 	struct spi_transfer transfer[2];
 	u8 tx_buf[SILAB_MESSAGE_LENGTH] ____cacheline_aligned;
 	u8 rx_buf[SILAB_MESSAGE_LENGTH];
+	u8 channel_config[SILAB_INPUT_NUM];
 
 	struct mutex lock;
 	const struct silab_chip_info *chip_info;
 	int gpio_reset;
+	bool data_valid;
 };
 
+static struct silab *adc;
+
+void data_valid_handler(struct work_struct *work) {
+	mutex_lock(&adc->lock);
+	adc->data_valid = true;
+	printk(KERN_DEBUG "Silab data valid \n");
+	mutex_unlock(&adc->lock);
+}
+
+DECLARE_DELAYED_WORK(data_valid_work, data_valid_handler);
 
 static int silab_read_value(struct silab *adc, u8 channel, int datatype)
 {
 	int ret = -1;
 	int retries = 10;
 
-	memset(&adc->tx_buf, 0x12, sizeof(adc->tx_buf));
+	if (channel > 3)
+		return ret;
+
 	memset(&adc->rx_buf, 0x00, sizeof(adc->rx_buf));
 
-	/* read all channels */
-	adc->tx_buf[0] = 0x00;
-	adc->tx_buf[1] = datatype;
-	adc->tx_buf[2] = datatype;
-	adc->tx_buf[3] = datatype;
-	adc->tx_buf[4] = datatype;
+	/* 
+         * We have to read all channels but keep the channel settings for the other channels.
+         * This is because the data transfer is not synchronous like the API looks like.
+         * It takes about one second for the data to become valid.
+         */
+	if (adc->channel_config[channel] != datatype) {
+		adc->channel_config[channel] = datatype;
+		adc->data_valid = false;
+		cancel_delayed_work(&data_valid_work);
+		schedule_delayed_work(&data_valid_work, 2 * HZ);
+	}
 
+	/* Channel order: Byte 1: 0x34 Byte 2: 0x12 */
+	adc->tx_buf[1] = (adc->channel_config[2] << 4) | adc->channel_config[3];
+	adc->tx_buf[2] = (adc->channel_config[0] << 4) | adc->channel_config[1];
 
 	while ((ret < 0) && retries--) {
 		/* zero length dummy transfer to get CS active */
@@ -110,8 +133,15 @@ static int silab_read_value(struct silab *adc, u8 channel, int datatype)
 
 			if (adc->tx_buf[2] != adc->rx_buf[4])
 				ret = -EIO;
+			if (ret < 0)
+				printk(KERN_DEBUG "silab: read failed sanity check... retrying\n");
+		} else {
+			printk(KERN_ERR "silab: read err spi\n");
 		}
 	}
+
+	if (!adc->data_valid)
+		ret = (datatype == SILAB_VAL_TEMPERATURE) ? 5000 : 0;
 
 	return ret;
 }
@@ -123,10 +153,10 @@ static int silab_read_raw(struct iio_dev *indio_dev,
 	struct silab *adc = iio_priv(indio_dev);
 	int ret = -EINVAL;
 
-	mutex_lock(&adc->lock);
-
 	if ((chan->channel < 0) || (chan->channel > 3))
 		return -EINVAL;
+
+	mutex_lock(&adc->lock);
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
@@ -244,7 +274,6 @@ static const struct silab_chip_info silab_chip_infos[] = {
 static int silab_probe(struct spi_device *spi)
 {
 	struct iio_dev *indio_dev;
-	struct silab *adc;
 	const struct silab_chip_info *chip_info;
 	int ret;
 	int gpio_reset;
@@ -287,6 +316,7 @@ static int silab_probe(struct spi_device *spi)
 	indio_dev->num_channels = chip_info->num_channels;
 
 	adc->chip_info = chip_info;
+	adc->data_valid = false;
 
 	adc->transfer[0].tx_buf = &adc->tx_buf;
 	adc->transfer[0].len = sizeof(adc->tx_buf);
@@ -298,6 +328,9 @@ static int silab_probe(struct spi_device *spi)
 	mutex_init(&adc->lock);
 
 	memset(&adc->tx_buf, 0x12, sizeof(adc->tx_buf));
+	memset(&adc->channel_config, 0, sizeof(adc->channel_config));
+
+	mdelay(600);
 
 	mdelay(600);
 
