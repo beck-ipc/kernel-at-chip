@@ -255,7 +255,6 @@ static int ad5337_write(struct ad5337_state *st, int channel, unsigned val)
 static const struct iio_info ad5337_info = {
 	.read_raw = ad5337_read_raw,
 	.write_raw = ad5337_write_raw,
-	.driver_module = THIS_MODULE,
 };
 
 static int ad5337_probe(struct device *dev, const char *name,
