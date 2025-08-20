@@ -260,7 +260,6 @@ static const struct iio_chan_spec silab_channels[] = {
 
 static const struct iio_info silab_info = {
 	.read_raw = silab_read_raw,
-	.driver_module = THIS_MODULE,
 };
 
 static const struct silab_chip_info silab_chip_infos[] = {
