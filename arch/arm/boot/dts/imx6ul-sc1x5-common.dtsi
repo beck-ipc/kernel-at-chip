@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  * Copyright (C) 2016 Beck IPC GmbH
- * Copyright (C) 2017 Kernel Concepts GmbH
+ * Copyright (C) 2017 ./kernel concepts GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -64,42 +64,36 @@
 };
 
 &ecspi1 {
-    fsl,spi-num-chipselects = <1>;
-    cs-gpios = <0>;
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_ecspi1>;
     status = "okay";
 
     spidev0: spidev@0 {
-        compatible = "spidev";
+        compatible = "rohm,dh2228fv";
         reg = <0>;
         spi-max-frequency = <60000000>;
     };
 };
 
 &ecspi2 {
-    fsl,spi-num-chipselects = <1>;
-    cs-gpios = <0>;
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_ecspi2>;
     status = "disabled";
 
-    spidev1: spidev@1 {
-        compatible = "spidev";
+    spidev1: spidev@0 {
+        compatible = "rohm,dh2228fv";
         spi-max-frequency = <0>;
         reg = <0>;
     };
 };
 
 &ecspi3 {
-    fsl,spi-num-chipselects = <1>;
-    cs-gpios = <0>;
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_ecspi3>;
     status = "disabled";
 
-    spidev2: spidev@2 {
-                compatible = "spidev";
+    spidev2: spidev@0 {
+                compatible = "rohm,dh2228fv";
                 spi-max-frequency = <0>;
                 reg = <0>;
             };

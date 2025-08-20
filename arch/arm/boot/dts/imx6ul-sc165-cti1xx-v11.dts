@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  * Copyright (C) 2016 Beck IPC GmbH
- * Copyright (C) 2017, 2018 Kernel Concepts GmbH
+ * Copyright (C) 2017, 2018 ./kernel concepts GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -236,9 +236,9 @@
     status = "okay";
 
     /* AD5337 analog out */
-    dac: ad5337@0C {
+    dac: ad5337@c {
 	compatible = "ad,ad5337";
-	reg = <0x0C>;
+	reg = <0xc>;
         vref = <&reg_vref2v5>;
 	clock-frequency = <30000>;
     };
@@ -291,7 +291,7 @@
     status = "okay";
 
     /* C0851F352 "Silab" analog input */
-    spidev2ain: spidev@1 {
+    spidev2ain: spidev@0 {
         compatible = "silab4chan";
         spi-max-frequency = <100000>;
         spi-cpha=<1>;

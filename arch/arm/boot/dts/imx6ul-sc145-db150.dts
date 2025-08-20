@@ -104,11 +104,12 @@
 };
 
 &ecspi1 {
-    fsl,spi-num-chipselects = <1>;
-    cs-gpios = <0>, <&gpio1 31 0>;
-    pinctrl-names = "default";
-    pinctrl-0 = <&pinctrl_ecspi1>;
-    status = "okay";
+	fsl,spi-num-chipselects = <1>;
+	cs-gpios = <&gpio1 31 0>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi1>;
+	status = "okay";
 
 	gpiom1: gpio@1 {
 		compatible = "microchip,mcp23s17";
