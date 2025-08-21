@@ -421,7 +421,6 @@ static const struct iio_chan_spec cti_ext08_channels[] = {
 static const struct iio_info cti_ext08_info = {
 	.read_raw = cti_ext08_read_raw,
 	.write_raw = cti_ext08_write_raw,
-	.driver_module = THIS_MODULE,
 };
 
 static const struct cti_ext08_chip_info cti_ext08_chip_infos[] = {
