@@ -310,8 +310,8 @@
     flash0: n25q512ax3@0 {
         #address-cells = <1>;
         #size-cells = <1>;
-        compatible = "micron,n25q512ax3";
-        spi-max-frequency = <29000000>;
+        compatible = "micron,n25q512ax3", "jedec,spi-nor";
+        spi-max-frequency = <10000000>;
         spi-nor,ddr-quad-read-dummy = <6>;
         reg = <0>;
     };
@@ -587,7 +587,6 @@
         >;
     };
 
-
     /* I2C2 */
     pinctrl_i2c2: i2c2grp {
         fsl,pins = <
@@ -649,6 +648,7 @@
 			MX6UL_PAD_LCD_DATA23__LCDIF_DATA23	0x10
 		>;
 	};
+
 	/* TOUCHSCREEN on FB150-GA01*/
 	pinctrl_touch: touchgrp {
 		fsl,pins = <
