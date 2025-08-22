@@ -197,7 +197,7 @@
 
 &usdhc1 {
     status = "okay";
-    cd-gpios = <&gpio4 26 GPIO_ACTIVE_LOW>; /* 117 high, 115 low */
+    cd-gpios = <&gpio4 26 GPIO_ACTIVE_HIGH>; /* 117 high, 115 low */
     disable-wp;
     vmmc-supply = <&reg_vref_3v3>;
     /delete-node/ wp-gpios;
